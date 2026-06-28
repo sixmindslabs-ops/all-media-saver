@@ -1,6 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
-import { Download, Link2, Loader as Loader2, Music, Settings, Sparkles, Video, Image as ImageIcon, CircleAlert as AlertCircle, Youtube, Instagram, Facebook, X as XIcon } from "lucide-react";
+import { useState, useEffect, type FormEvent } from "react";
+import {
+  Download,
+  Link2,
+  Loader as Loader2,
+  Music,
+  Settings,
+  Sparkles,
+  Video,
+  Image as ImageIcon,
+  CircleAlert as AlertCircle,
+  Youtube,
+  Instagram,
+  Facebook,
+  X as XIcon,
+} from "lucide-react";
 import {
   detectPlatform,
   getCustomInstance,
@@ -45,7 +59,13 @@ function SnatchPage() {
   const [result, setResult] = useState<CobaltResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [instance, setInstance] = useState(getCustomInstance());
+  const [instance, setInstance] = useState("");
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setInstance(getCustomInstance());
+    setHydrated(true);
+  }, []);
 
   const platform = url ? detectPlatform(url) : null;
 
