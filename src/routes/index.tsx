@@ -1,20 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import {
-  Download,
-  Link2,
-  Loader2,
-  Music,
-  Settings,
-  Sparkles,
-  Video,
-  Image as ImageIcon,
-  AlertCircle,
-  Youtube,
-  Instagram,
-  Facebook,
-  X as XIcon,
-} from "lucide-react";
+import { Download, Link2, Loader as Loader2, Music, Settings, Sparkles, Video, Image as ImageIcon, CircleAlert as AlertCircle, Youtube, Instagram, Facebook, X as XIcon } from "lucide-react";
 import {
   detectPlatform,
   getCustomInstance,
@@ -83,8 +69,9 @@ function SnatchPage() {
       } else {
         setResult(res);
       }
-    } catch (err: any) {
-      setError(err?.message ?? "Something went wrong. Try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -127,7 +114,8 @@ function SnatchPage() {
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground">
-            Video, audio, GIF or photo from YouTube, Instagram, Facebook, Pinterest, TikTok and X — even 24-hour streams.
+            Video, audio, GIF or photo from YouTube, Instagram, Facebook, Pinterest, TikTok and X —
+            even 24-hour streams.
           </p>
         </section>
 

@@ -26,17 +26,30 @@ async function callCobalt(instance: string, body: CobaltBody, signal: AbortSigna
     signal,
   });
   const text = await res.text();
-  let json: any;
+  let json: unknown;
   try {
     json = JSON.parse(text);
   } catch {
     throw new Error(`Instance ${instance} returned non-JSON (status ${res.status})`);
   }
-  if (!res.ok && !json?.status) {
+  if (!res.ok && !isCobaltResponse(json)) {
     throw new Error(`Instance ${instance} failed: ${res.status}`);
   }
-  return json;
+  return json as CobaltResponse;
 }
+
+function isCobaltResponse(val: unknown): val is CobaltResponse {
+  return typeof val === "object" && val !== null && "status" in val;
+}
+
+type CobaltResponse = {
+  status: string;
+  error?: string;
+  url?: string;
+  filename?: string;
+  picker?: Array<{ type: string; url: string; thumb?: string }>;
+  audio?: string;
+};
 
 export const Route = createFileRoute("/api/download")({
   server: {
@@ -50,10 +63,7 @@ export const Route = createFileRoute("/api/download")({
         }
 
         if (!payload?.url || typeof payload.url !== "string") {
-          return Response.json(
-            { status: "error", error: "Missing 'url' field" },
-            { status: 400 },
-          );
+          return Response.json({ status: "error", error: "Missing 'url' field" }, { status: 400 });
         }
 
         const body: CobaltBody = {
@@ -77,9 +87,10 @@ export const Route = createFileRoute("/api/download")({
             const data = await callCobalt(instance, body, controller.signal);
             clearTimeout(timeout);
             return Response.json({ ...data, _instance: instance });
-          } catch (err: any) {
+          } catch (err: unknown) {
             clearTimeout(timeout);
-            errors.push(`${instance}: ${err?.message ?? "unknown error"}`);
+            const message = err instanceof Error ? err.message : "unknown error";
+            errors.push(`${instance}: ${message}`);
           }
         }
 
